@@ -15,15 +15,6 @@ namespace NeedleConfig
         public static void ApplyHooks()
         {
             On.RainWorld.OnModsInit += RainWorld_OnModsInit;
-            On.Player.GrabUpdate += Player_GrabUpdate1;
-        }
-
-        // Must reset to false whenever the method is run
-        private static void Player_GrabUpdate1(On.Player.orig_GrabUpdate orig, Player self, bool eu)
-        {
-            wasInputProcessed[self] = false;
-
-            orig(self, eu);
         }
 
         private static bool isInit = false;
@@ -68,7 +59,13 @@ namespace NeedleConfig
             ILCursor c = new ILCursor(il);
 
             ILLabel extractDest = null!;
-            ILLabel afterDest = null!;
+            ILLabel afterSMCheckDest = null!;
+
+            c.Emit(OpCodes.Ldarg_0);
+            c.EmitDelegate<Action<Player>>(player =>
+            {
+                wasInputProcessed[player] = false;
+            });
 
 
             // Move closer to target
@@ -81,27 +78,30 @@ namespace NeedleConfig
                 x => x.MatchLdcI4(-1),
                 x => x.MatchBle(out extractDest));
 
-            
-            
-            // If custom keybind is enabled, reject normal pickup input
+
+
+            // Spearmaster Check
             c.GotoNext(MoveType.After,
                 x => x.MatchLdarg(0),
                 x => x.MatchCallOrCallvirt<Player>("get_input"),
                 x => x.MatchLdcI4(0),
                 x => x.MatchLdelema<Player.InputPackage>(),
                 x => x.MatchLdfld<Player.InputPackage>("y"),
-                x => x.MatchBrtrue(out afterDest));
+                x => x.MatchBrtrue(out afterSMCheckDest));
 
             c.Emit(OpCodes.Ldarg_0);
             c.EmitDelegate<Func<Player, bool>>((player) =>
             {
-                if (!Options.usesCustomKeybind.Value) return true;
+                if (wasInputProcessed[player]) return false;
 
                 wasInputProcessed[player] = true;
+
+                if (!Options.usesCustomKeybind.Value) return true;
+
                 return IsCustomKeybindPressed(player);
             });
 
-            c.Emit(OpCodes.Brfalse, afterDest);
+            c.Emit(OpCodes.Brfalse, afterSMCheckDest);
 
 
 
@@ -118,18 +118,13 @@ namespace NeedleConfig
             {
                 if (!Options.usesCustomKeybind.Value) return false;
 
-                if (wasInputProcessed[player])
-                {
-                    Plugin.Logger.LogWarning("HELPPP");
-                    return false;
-                }
+                if (wasInputProcessed[player]) return false;
 
-                return IsCustomKeybindPressed(player);
+                return true;
             });
 
             c.Emit(OpCodes.Brtrue, extractDest);
             //c.Emit(OpCodes.Ldloc_S, (byte)6);
-
 
 
             //// First 10% Extraction Speed
