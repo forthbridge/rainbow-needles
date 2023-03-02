@@ -1,0 +1,12 @@
+{
+	"id": "needleconfig",
+	"name": "Needle Config",
+	"version": "1.0.0",
+	"target_game_version": "v1.9.06",
+	"authors": "forthbridge",
+	"description": "Provides a Remix config for several attributes surrounding Spearmaster's needles!<LINE><LINE>Source:",
+	"requirements": [],
+	"requirements_names": [],
+	"tags": ["Accessibility", "Game Mechanics", "Cosmetics"],
+	"checksum_override_version": false
+}
