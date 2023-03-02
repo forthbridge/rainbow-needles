@@ -92,12 +92,12 @@ namespace NeedleConfig
             c.Emit(OpCodes.Ldarg_0);
             c.EmitDelegate<Func<Player, bool>>((player) =>
             {
-                if (wasInputProcessed[player]) return false;
-
                 wasInputProcessed[player] = true;
 
+                // Run
                 if (!Options.usesCustomKeybind.Value) return true;
 
+                // Run depending on input
                 return IsCustomKeybindPressed(player);
             });
 
@@ -111,16 +111,11 @@ namespace NeedleConfig
 
             c.Index++;
 
-            // Branch to straight to destination if the key is pressed
-            // The destination being SM's spear extraction
+            // Branch back to check extraction
             c.Emit(OpCodes.Ldarg_0);
             c.EmitDelegate<Func<Player, bool>>((player) =>
             {
-                if (!Options.usesCustomKeybind.Value) return false;
-
-                if (wasInputProcessed[player]) return false;
-
-                return true;
+                return Options.usesCustomKeybind.Value && !wasInputProcessed[player];
             });
 
             c.Emit(OpCodes.Brtrue, extractDest);
