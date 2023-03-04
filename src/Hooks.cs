@@ -38,114 +38,36 @@ namespace NeedleConfig
             }
         }
 
-        private static bool IsCustomKeybindPressed(Player player)
-        {
-            return player.playerState.playerNumber switch
-            {
-                0 => Input.GetKey(Options.keybindPlayer1.Value) || Input.GetKey(Options.keybindKeyboard.Value),
-                1 => Input.GetKey(Options.keybindPlayer2.Value),
-                2 => Input.GetKey(Options.keybindPlayer3.Value),
-                3 => Input.GetKey(Options.keybindPlayer4.Value),
-
-                _ => false
-            };
-        }
-
-
         private static Dictionary<Player, bool> wasInputProcessed = new Dictionary<Player, bool>();
 
         private static void Player_GrabUpdate(ILContext il)
         {
             ILCursor c = new ILCursor(il);
 
-            ILLabel extractDest = null!;
-            ILLabel afterSMCheckDest = null!;
+            // First 10% Extraction Speed
+            c.GotoNext(MoveType.After,
+                x => x.MatchLdloc(16),
+                x => x.MatchLdloc(16),
+                x => x.MatchLdfld<PlayerGraphics.TailSpeckles>("spearProg"),
+                x => x.MatchLdcR4(0.11f));
+
+            c.Remove();
 
             c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Action<Player>>(player =>
-            {
-                wasInputProcessed[player] = false;
-            });
+            c.EmitDelegate<Func<Player, float>>((player) => (Options.needleExtractSpeedFirst.Value / 100.0f) * 0.1f);
 
 
-            // Move closer to target
+            // Rest of Extraction Speed
             c.GotoNext(MoveType.After,
-                x => x.MatchCallOrCallvirt<Player>("PickupPressed"));
+                x => x.MatchLdloc(16),
+                x => x.MatchLdloc(16),
+                x => x.MatchLdfld<PlayerGraphics.TailSpeckles>("spearProg"),
+                x => x.MatchLdcR4(1));
 
-            // Get Destination
-            c.GotoNext(MoveType.After,
-                x => x.MatchLdloc(3),
-                x => x.MatchLdcI4(-1),
-                x => x.MatchBle(out extractDest));
-
-
-
-            // Spearmaster Check
-            c.GotoNext(MoveType.After,
-                x => x.MatchLdarg(0),
-                x => x.MatchCallOrCallvirt<Player>("get_input"),
-                x => x.MatchLdcI4(0),
-                x => x.MatchLdelema<Player.InputPackage>(),
-                x => x.MatchLdfld<Player.InputPackage>("y"),
-                x => x.MatchBrtrue(out afterSMCheckDest));
+            c.Remove();
 
             c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Func<Player, bool>>((player) =>
-            {
-                wasInputProcessed[player] = true;
-
-                // Run
-                if (!Options.usesCustomKeybind.Value) return true;
-
-                // Run depending on input
-                return IsCustomKeybindPressed(player);
-            });
-
-            c.Emit(OpCodes.Brfalse, afterSMCheckDest);
-
-
-
-            // Move just before PickupPressed checks
-            c.GotoNext(MoveType.After,
-                x => x.MatchStfld<Player>("wantToThrow"));
-
-            c.Index++;
-
-            // Branch back to check extraction
-            c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Func<Player, bool>>((player) =>
-            {
-                return Options.usesCustomKeybind.Value && !wasInputProcessed[player];
-            });
-
-            c.Emit(OpCodes.Brtrue, extractDest);
-            //c.Emit(OpCodes.Ldloc_S, (byte)6);
-
-
-            //// First 10% Extraction Speed
-            //c.GotoNext(MoveType.After,
-            //    x => x.MatchLdloc(16),
-            //    x => x.MatchLdloc(16),
-            //    x => x.MatchLdfld<PlayerGraphics.TailSpeckles>("spearProg"),
-            //    x => x.MatchLdcR4(0.11f));
-
-            //c.Remove();
-
-            //c.Emit(OpCodes.Ldarg_0);
-            //c.EmitDelegate<Func<Player, float>>((player) => (Options.needleExtractSpeedFirst.Value / 100.0f) * 0.1f);
-
-
-            //// Rest of Extraction Speed
-            //c.GotoNext(MoveType.After,
-            //    x => x.MatchLdloc(16),
-            //    x => x.MatchLdloc(16),
-            //    x => x.MatchLdfld<PlayerGraphics.TailSpeckles>("spearProg"),
-            //    x => x.MatchLdcR4(1));
-
-            //c.Remove();
-
-            //c.Emit(OpCodes.Ldarg_0);
-            //c.EmitDelegate<Func<Player, float>>((player) => (Options.needleExtractSpeedLast.Value / 100.0f) * 0.05f);
+            c.EmitDelegate<Func<Player, float>>((player) => (Options.needleExtractSpeedLast.Value / 100.0f) * 0.05f);
 
 
             //// Override MSC Needle Check
