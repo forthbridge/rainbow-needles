@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Media;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -58,7 +59,7 @@ namespace NeedleConfig
                     for (int j = 0; j < self.lines; j++)
                     {
                         int index = self.startSprite + i * self.lines + j;
-                        coloredSpeckles[index] = Custom.HSL2RGB((1.0f / (self.rows + self.lines)) * (i + j), 1.0f, 0.6f);
+                        coloredSpeckles[index] = Custom.HSL2RGB(((1.0f / (self.rows + self.lines)) * (i + j)), 1.0f, 0.6f);
                     }
                 }
 
@@ -71,16 +72,33 @@ namespace NeedleConfig
                 {
                     int index = self.startSprite + i * self.lines + j;
                     
-                    if (Options.rainbowSpeckles.Value) sLeaser.sprites[index].color = coloredSpeckles[index];
+                    if (Options.rainbowSpeckles.Value)
+                    {
+                        sLeaser.sprites[index].color = coloredSpeckles[index];
+
+                        if (Options.specklesCycle.Value)
+                        {
+                            Color currentColor = coloredSpeckles[index];
+                            Vector3 HSL = Custom.RGB2HSL(currentColor);
+                            float hue = HSL.x + GetFrameColorAddition();
+
+                            if (hue > 1.0f) hue = 0.0f;
+
+                            coloredSpeckles[index] = Custom.HSL2RGB(hue, HSL.y, HSL.z);
+                        }
+                    }
+
 
                     if (i == self.spearRow && j == self.spearLine && Options.rainbowNeedles.Value)
                     {
+
                         StrongBox<Color> targetColor;
                         nextSpearColor.TryGetValue(self.pGraphics.player, out targetColor);
 
-                        if (targetColor != null) nextSpearColor.Remove(self.pGraphics.player);
+                        if (targetColor == null) nextSpearColor.Add(self.pGraphics.player, new StrongBox<Color>());
 
-                        nextSpearColor.Add(self.pGraphics.player, new StrongBox<Color>(coloredSpeckles[index]));
+                        if (targetColor != null) targetColor.Value = coloredSpeckles[index];
+
                         sLeaser.sprites[self.startSprite + self.lines * self.rows].color = coloredSpeckles[index];
                     }
                 }
@@ -110,6 +128,9 @@ namespace NeedleConfig
 
         private const float THREAD_COLOR_MULTIPLIER = 0.85f;
         private const float FADED_COLOR_MULTIPLIER = 0.6f;
+        private const float FRAME_COLOR_ADDITION = 0.005f;
+
+        private static float GetFrameColorAddition() => FRAME_COLOR_ADDITION * (Options.cycleSpeed.Value / 100.0f);
 
         private static ConditionalWeakTable<Spear, StrongBox<Color>> coloredSpears = new ConditionalWeakTable<Spear, StrongBox<Color>>();
 
@@ -120,13 +141,27 @@ namespace NeedleConfig
 
             if (spearColor == null && self.IsNeedle && Options.rainbowNeedles.Value && !self.slatedForDeletetion)
             {
+                StrongBox<Color> targetColor;
+                
                 if (self.grabbedBy.Count > 0 && self.grabbedBy[0].grabber is Player player)
                 {
-                    StrongBox<Color> targetColor;
                     nextSpearColor.TryGetValue(player, out targetColor);
-
-                    if (targetColor != null) coloredSpears.Add(self, targetColor);
+                    coloredSpears.Add(self, new StrongBox<Color>(new Color(targetColor.Value.r, targetColor.Value.g, targetColor.Value.b)));
                 }
+                else
+                {
+                    coloredSpears.Add(self, new StrongBox<Color>(Random.ColorHSV(0.0f, 1.0f, 1.0f, 1.0f, 0.6f, 0.6f)));
+                }
+            }
+
+            if (Options.needlesCycle.Value && self.spearmasterNeedle_hasConnection && spearColor != null)
+            {
+                Vector3 HSL = Custom.RGB2HSL(spearColor.Value);
+                float hue = HSL.x + GetFrameColorAddition();
+
+                if (hue > 1.0f) hue = 0.0f;
+
+                spearColor.Value = Custom.HSL2RGB(hue, HSL.y, HSL.z);
             }
 
             orig(self, sLeaser, rCam, timeStacker, camPos);

@@ -29,15 +29,27 @@ namespace NeedleConfig
             "Whether the color of needles fades after being thrown. Only affects rainbow needles.",
             null, "", "Needles Fade?"));
 
+        public static Configurable<bool> specklesCycle = instance.config.Bind("specklesCycle", true, new ConfigurableInfo(
+            "Whether the color of speckles cycles between all hues",
+            null, "", "Speckles Cycle?"));
+
+        public static Configurable<bool> needlesCycle = instance.config.Bind("needlesCycle", false, new ConfigurableInfo(
+            "Whether the color of needles slowly cycles between all hues.",
+            null, "", "Needles Cycle?"));
+
         public static Configurable<int> tailRows = instance.config.Bind("tailRows", 5, new ConfigurableInfo(
             "Influences the amount of holes present on Spearmaster's tail vertically." +
             "\nHold and drag up and down to change.",
-            new ConfigAcceptableRange<int>(0, int.MaxValue / 2), "", "Tail Rows"));
+            new ConfigAcceptableRange<int>(0, 20), "", "Tail Rows"));
 
         public static Configurable<int> tailLines = instance.config.Bind("tailLines", 3, new ConfigurableInfo(
             "Influences the amount of holes present on Spearmaster's tail horizontally." +
             "\nHold and drag up and down to change.",
-            new ConfigAcceptableRange<int>(0, int.MaxValue / 2), "", "Tail Lines"));
+            new ConfigAcceptableRange<int>(0, 20), "", "Tail Lines"));
+
+        public static Configurable<int> cycleSpeed = instance.config.Bind("cycleSpeed", 100, new ConfigurableInfo(
+            "Modifier for how fast the rainbow cycles, if cycling is enabled.",
+            new ConfigAcceptableRange<int>(1, 500), "", "Cycle Speed Modifier"));
 
         #endregion
 
@@ -97,11 +109,20 @@ namespace NeedleConfig
             AddCheckBox(needlesFade, (string)needlesFade.info.Tags[0]);
             DrawCheckBoxes(ref Tabs[tabIndex]);
 
+            AddCheckBox(needlesCycle, (string)needlesCycle.info.Tags[0]);
+            AddCheckBox(specklesCycle, (string)specklesCycle.info.Tags[0]);
+            DrawCheckBoxes(ref Tabs[tabIndex]);
+
+            AddNewLine();
+
+            AddSlider(cycleSpeed, (string)cycleSpeed.info.Tags[0], "1%", "500%");
+            DrawSliders(ref Tabs[tabIndex]);
+
             AddDragger(tailRows, (string)tailRows.info.Tags[0]);
             AddDragger(tailLines, (string)tailLines.info.Tags[0]);
             DrawDraggers(ref Tabs[tabIndex]);
 
-            AddNewLine(12);
+            AddNewLine(5);
             DrawBox(ref Tabs[tabIndex]);
         }
 
