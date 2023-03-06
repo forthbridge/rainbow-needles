@@ -13,13 +13,31 @@ namespace NeedleConfig
 
         #region Options
 
-        public static Configurable<bool> rainbowNeedles = instance.config.Bind("rainbowNeedles", false, new ConfigurableInfo(
+        public static Configurable<bool> rainbowNeedles = instance.config.Bind("rainbowNeedles", true, new ConfigurableInfo(
             "Randomises the hue of extracted needles.",
             null, "", "Rainbow Needles?"));
 
-        public static Configurable<bool> rainbowSpeckles = instance.config.Bind("rainbowSpeckles", false, new ConfigurableInfo(
+        public static Configurable<bool> rainbowSpeckles = instance.config.Bind("rainbowSpeckles", true, new ConfigurableInfo(
             "Randomizes the hue of tail speckles.",
             null, "", "Rainbow Speckles?"));
+
+        public static Configurable<bool> rainbowThread = instance.config.Bind("rainbowThread", true, new ConfigurableInfo(
+            "Randomizes the hue of the thread connecting the spears to Spearmaster. Depends on Rainbow Needles.",
+            null, "", "Rainbow Thread?"));
+
+        public static Configurable<bool> needlesFade = instance.config.Bind("needlesFade", true, new ConfigurableInfo(
+            "Whether the color of needles fades after being thrown. Only affects rainbow needles.",
+            null, "", "Needles Fade?"));
+
+        public static Configurable<int> tailRows = instance.config.Bind("tailRows", 5, new ConfigurableInfo(
+            "Influences the amount of holes present on Spearmaster's tail vertically." +
+            "\nHold and drag up and down to change.",
+            new ConfigAcceptableRange<int>(0, int.MaxValue / 2), "", "Tail Rows"));
+
+        public static Configurable<int> tailLines = instance.config.Bind("tailLines", 3, new ConfigurableInfo(
+            "Influences the amount of holes present on Spearmaster's tail horizontally." +
+            "\nHold and drag up and down to change.",
+            new ConfigAcceptableRange<int>(0, int.MaxValue / 2), "", "Tail Lines"));
 
         #endregion
 
@@ -29,6 +47,10 @@ namespace NeedleConfig
         private readonly int numberOfCheckboxes = 2;
         private readonly float checkBoxSize = 60.0f;
         private float CheckBoxWithSpacing => checkBoxSize + 0.25f * spacing;
+
+        private float DraggerWithSpacing => draggerSize + 0.25f * spacing;
+        private readonly int numberOfDraggers = 2;
+        private readonly float draggerSize = 60.0f;
         #endregion
 
         #region Variables
@@ -50,6 +72,10 @@ namespace NeedleConfig
         private readonly List<OpLabel> sliderTextLabelsLeft = new();
         private readonly List<OpLabel> sliderTextLabelsRight = new();
 
+        private readonly List<Configurable<int>> draggerIntConfigurables = new();
+        private readonly List<OpLabel> draggerIntTextLabels = new();
+
+
         private readonly List<OpLabel> textLabels = new();
         #endregion
 
@@ -67,7 +93,15 @@ namespace NeedleConfig
             AddCheckBox(rainbowSpeckles, (string)rainbowSpeckles.info.Tags[0]);
             DrawCheckBoxes(ref Tabs[tabIndex]);
 
-            AddNewLine(17);
+            AddCheckBox(rainbowThread, (string)rainbowThread.info.Tags[0]);
+            AddCheckBox(needlesFade, (string)needlesFade.info.Tags[0]);
+            DrawCheckBoxes(ref Tabs[tabIndex]);
+
+            AddDragger(tailRows, (string)tailRows.info.Tags[0]);
+            AddDragger(tailLines, (string)tailLines.info.Tags[0]);
+            DrawDraggers(ref Tabs[tabIndex]);
+
+            AddNewLine(12);
             DrawBox(ref Tabs[tabIndex]);
         }
 
@@ -137,6 +171,56 @@ namespace NeedleConfig
             );
 
             AddNewLine(2);
+        }
+
+        private void AddDragger(Configurable<int> configurable, string text)
+        {
+            draggerIntConfigurables.Add(configurable);
+            draggerIntTextLabels.Add(new OpLabel(new Vector2(), new Vector2(), text, FLabelAlignment.Left));
+        }
+
+        private void DrawDraggers(ref OpTab tab)
+        {
+            if (draggerIntConfigurables.Count != draggerIntTextLabels.Count) return;
+
+            float width = marginX.y - marginX.x;
+            float elementWidth = (width - (numberOfDraggers - 1) * 0.5f * spacing) / numberOfDraggers;
+            pos.y -= draggerSize;
+            float _posX = pos.x;
+
+            for (int i = 0; i < draggerIntConfigurables.Count; ++i)
+            {
+                Configurable<int> configurable = draggerIntConfigurables[i];
+
+                OpDragger dragger = new(configurable, new Vector2(_posX, pos.y))
+                {
+                    description = configurable.info?.description ?? ""
+                };
+                tab.AddItems(dragger);
+                _posX += DraggerWithSpacing;
+
+                OpLabel draggerLabel = draggerIntTextLabels[i];
+                draggerLabel.pos = new Vector2(_posX, pos.y + 2f);
+                draggerLabel.size = new Vector2(elementWidth - DraggerWithSpacing, fontHeight);
+                tab.AddItems(draggerLabel);
+
+                if (i < draggerIntConfigurables.Count - 1)
+                {
+                    if ((i + 1) % numberOfDraggers == 0)
+                    {
+                        AddNewLine();
+                        pos.y -= draggerSize;
+                        _posX = pos.x;
+                    }
+                    else
+                    {
+                        _posX += elementWidth - DraggerWithSpacing + 0.5f * spacing;
+                    }
+                }
+            }
+
+            draggerIntConfigurables.Clear();
+            draggerIntTextLabels.Clear();
         }
 
         private void AddCheckBox(Configurable<bool> configurable, string text)
