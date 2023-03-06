@@ -1,3 +1,5 @@
-[h1]Makes each of Spearmaster's needles a random color![/h1]
+[h1]Makes Spearmaster's needles and tail speckles a fully animated rainbow![/h1]
 
-[u][b]Source: https://github.com/forthbridge/rainbow-needles[/b][/u]
+[h1]Configurable via Remix, from the parts affected to the rainbow cycle speed![/h1]
+
+[b][u]Source: https://github.com/forthbridge/rainbow-needles[/u][/b]
