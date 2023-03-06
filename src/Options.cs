@@ -39,12 +39,12 @@ namespace NeedleConfig
 
         public static Configurable<int> tailRows = instance.config.Bind("tailRows", 5, new ConfigurableInfo(
             "Influences the amount of holes present on Spearmaster's tail vertically." +
-            "\nHold and drag up and down to change.",
+            "\nHold and drag up or down to change.",
             new ConfigAcceptableRange<int>(0, 20), "", "Tail Rows"));
 
         public static Configurable<int> tailLines = instance.config.Bind("tailLines", 3, new ConfigurableInfo(
             "Influences the amount of holes present on Spearmaster's tail horizontally." +
-            "\nHold and drag up and down to change.",
+            "\nHold and drag up or down to change.",
             new ConfigAcceptableRange<int>(0, 20), "", "Tail Lines"));
 
         public static Configurable<int> cycleSpeed = instance.config.Bind("cycleSpeed", 100, new ConfigurableInfo(
