@@ -74,43 +74,12 @@ namespace NeedleConfig
 
             try
             {
-                IL.Player.GrabUpdate += Player_GrabUpdate;
                 IL.Spear.Umbilical.DrawSprites += Umbilical_DrawSpritesIL;
             }
             catch (Exception ex)
             {
                 Plugin.Logger.LogError(ex);
             }
-        }
-
-        private static void Player_GrabUpdate(ILContext il)
-        {
-            ILCursor c = new ILCursor(il);
-
-            // First 10% Extraction Speed
-            c.GotoNext(MoveType.After,
-                x => x.MatchLdloc(16),
-                x => x.MatchLdloc(16),
-                x => x.MatchLdfld<PlayerGraphics.TailSpeckles>("spearProg"),
-                x => x.MatchLdcR4(0.11f));
-
-            c.Remove();
-
-            c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Func<Player, float>>((player) => Options.instantNeedles.Value ? 1.0f : (Options.needleExtractSpeedFirst.Value / 100.0f) * 0.1f);
-
-
-            // Rest of Extraction Speed
-            c.GotoNext(MoveType.After,
-                x => x.MatchLdloc(16),
-                x => x.MatchLdloc(16),
-                x => x.MatchLdfld<PlayerGraphics.TailSpeckles>("spearProg"),
-                x => x.MatchLdcR4(1));
-
-            c.Remove();
-
-            c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Func<Player, float>>((player) => Options.instantNeedles.Value ? 1.0f : (Options.needleExtractSpeedLast.Value / 100.0f) * 0.05f);
         }
 
         private const float THREAD_COLOR_MULTIPLIER = 0.85f;

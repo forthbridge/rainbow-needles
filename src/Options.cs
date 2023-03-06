@@ -13,23 +13,13 @@ namespace NeedleConfig
 
         #region Options
 
-        public static Configurable<int> needleExtractSpeedFirst = instance.config.Bind("needleExtractSpeedFirst", 100, new ConfigurableInfo(
-            "How long Spearmaster takes to extract spears relative to normal. Applies to the first 10% of extraction.",
-            new ConfigAcceptableRange<int>(1, 1000), "", "Needle Extract Speed Multiplier" +
-            "\n(First 10%)"));
-
-        public static Configurable<int> needleExtractSpeedLast = instance.config.Bind("needleExtractSpeedLast", 100, new ConfigurableInfo(
-            "How long Spearmaster takes to extract spears relative to normal. Applies to the remaining 90% of extraction.",
-            new ConfigAcceptableRange<int>(1, 1000), "", "Needle Extract Speed Multiplier" +
-            "\n(Last 90%)"));
-
-        public static Configurable<bool> instantNeedles = instance.config.Bind("instantNeedles", false, new ConfigurableInfo(
-            "Overrides the other speed configs and makes needle extraction instantaneous.",
-            null, "", "Instant Needles?"));
-
         public static Configurable<bool> rainbowNeedles = instance.config.Bind("rainbowNeedles", false, new ConfigurableInfo(
-            "Randomises the colour of extracted needles, so you can have a pretty rainbow!",
+            "Randomises the hue of extracted needles.",
             null, "", "Rainbow Needles?"));
+
+        public static Configurable<bool> rainbowSpeckles = instance.config.Bind("rainbowSpeckles", false, new ConfigurableInfo(
+            "Randomizes the hue of tail speckles.",
+            null, "", "Rainbow Speckles?"));
 
         #endregion
 
@@ -73,15 +63,11 @@ namespace NeedleConfig
 
             AddTab(ref tabIndex, "General");
 
-            AddSlider(needleExtractSpeedFirst, (string)needleExtractSpeedFirst.info.Tags[0], "1%", "1000%");
-            AddSlider(needleExtractSpeedLast, (string)needleExtractSpeedLast.info.Tags[0], "1%", "1000%");
-            DrawSliders(ref Tabs[tabIndex]);
-
-            AddCheckBox(instantNeedles, (string)instantNeedles.info.Tags[0]);
             AddCheckBox(rainbowNeedles, (string)rainbowNeedles.info.Tags[0]);
+            AddCheckBox(rainbowSpeckles, (string)rainbowSpeckles.info.Tags[0]);
             DrawCheckBoxes(ref Tabs[tabIndex]);
 
-            AddNewLine(12);
+            AddNewLine(17);
             DrawBox(ref Tabs[tabIndex]);
         }
 
