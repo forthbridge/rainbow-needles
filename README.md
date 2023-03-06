@@ -1,4 +1,6 @@
-# Makes each of Spearmaster's needles a random color!
+# Makes Spearmaster's needles and tail speckles a fully animated rainbow!
+
+## Configurable via Remix, from the parts affected to the rainbow cycle speed!
  
 ## Manual Installation
 You can find most workshop mods hosted on RainDB! (http://www.raindb.net/)
