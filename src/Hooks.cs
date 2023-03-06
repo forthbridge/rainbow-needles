@@ -120,7 +120,7 @@ namespace NeedleConfig
 
             if (spearColor == null && self.IsNeedle && Options.rainbowNeedles.Value && !self.slatedForDeletetion)
             {
-                if (self.grabbedBy[0].grabber is Player player)
+                if (self.grabbedBy.Count > 0 && self.grabbedBy[0].grabber is Player player)
                 {
                     StrongBox<Color> targetColor;
                     nextSpearColor.TryGetValue(player, out targetColor);
