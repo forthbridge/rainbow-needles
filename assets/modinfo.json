@@ -1,7 +1,7 @@
 {
 	"id": "rainbowneedles",
 	"name": "Rainbow Needles",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"authors": "forthbridge",
 	"description": "Makes Spearmaster's needles and tail speckles a fully animated rainbow!<LINE><LINE>Configurable via Remix, from the parts affected to the rainbow cycle speed!<LINE><LINE>Source: https://github.com/forthbridge/rainbow-needles",
 	"requirements": ["moreslugcats"],
