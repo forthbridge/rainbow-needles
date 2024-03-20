@@ -1,0 +1,16 @@
+{
+  "Title": "Rainbow Needles",
+  "Description": "Makes Spearmaster\u0027s needles and tail speckles a fully animated rainbow!\u003CLINE\u003E\u003CLINE\u003EConfigurable via Remix, from the parts affected to the rainbow cycle speed!\u003CLINE\u003E\u003CLINE\u003ESource: https://github.com/forthbridge/rainbow-needles",
+  "ID": "rainbowneedles",
+  "Version": "1.1.0",
+  "TargetGameVersion": "v1.9.15",
+  "Requirements": "moreslugcats",
+  "RequirementNames": "More Slugcats Expansion",
+  "Authors": "forthbridge",
+  "Visibility": "Public",
+  "Tags": [
+    "Cosmetics"
+  ],
+  "WorkshopID": 2943128091,
+  "UploadFilesOnly": true
+}
